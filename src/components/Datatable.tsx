@@ -3,6 +3,7 @@ import React from "react"
 import MUIDataTable from "mui-datatables";
 import { useEffect } from "react";
 import { useState } from "react";
+import { CircularProgress } from "@mui/material";
 
 type DatatableProps = {
     to: Date,
@@ -20,13 +21,15 @@ type Ticket = {
 export function Datatable({to, from}: DatatableProps){
 
     const [data, setData] = useState<Ticket[]>([])
+    const [loading, setLoading] = useState<boolean>(false)
 
     useEffect(()=>{
-    fetch(`https://baddworldwide-api.herokuapp.com/api/v1/tickets?from=${from.toISOString()}&to=${to.toISOString()}`)
+    setLoading(true)
+    fetch(`/api/get_tickets?from=${from.toISOString()}&to=${to.toISOString()}`)
     .then((data)=>{
         data.json().then((json)=>{
-            console.log(`https://baddworldwide-api.herokuapp.com/api/v1/tickets?from=${from.toISOString()}&to=${to.toISOString()}`)
             console.log(json)
+            setLoading(false)
             setData(json)
         })
     })
@@ -82,14 +85,19 @@ export function Datatable({to, from}: DatatableProps){
        };
        
        return (
+        <>
+        {loading && (<CircularProgress/>)}
+        {//@ts-ignore
+        <MUIDataTable
+        title={"Ticket List"}
+        data={data}
+        columns={columns}
         //@ts-ignore
-       <MUIDataTable
-         title={"Ticket List"}
-         data={data}
-         columns={columns}
-         //@ts-ignore
-         options={options}
-       />)
+        options={options}
+      />}
+       
+       </>
+       )
        
 
 }
